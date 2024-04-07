@@ -20,16 +20,41 @@ async def request(url: str):
             raise HttpError(f"Error status: {r.status_code} for {url}")
 
 
+def normalize_response(response):
+    result_list = list()
+    # print(type(response))
+    # for key, value in response.items():
+    #     # print(key, value)
+    #     current_date = key['date']
+    # print(current_date)
+    
+    # return response
+    current_date = None
+    for rate in response.get('exchangeRate', []):
+        if rate.get('currency') in ['EUR', 'USD']:
+            currency = rate['currency']
+            date = response['date']
+            if date != current_date:
+                result_list.append(date)
+                current_date = date
+            result_list.append(f"\n{{'{currency}': {{\n"
+                                  f"  'sale': {rate.get('saleRateNB', 0)},\n"
+                                  f"  'purchase': {rate.get('purchaseRateNB', 0)}\n}}}}")
+
+    return result_list
+
+
 async def main(index_day):
-    # if int(index_day) > 10:
-        # raise ValueError("Days less 10.")
-        # print(f"Days {index_day} more then 10")
-        # sys.exit(f"Days {index_day} more then 10")
+    res_exchange_list = list()
     d = datetime.now() - timedelta(days=index_day)
     shift = d.strftime("%d.%m.%Y")
+    
     try:
-        response = await request(f'https://api.privatbank.ua/p24api/exchange_rates?date={shift}')
-        return response
+        for index in range(index_day + 1):  # AAAAAAAAAAAAAAAAAAAAAAAAA
+            response = await request(f'https://api.privatbank.ua/p24api/exchange_rates?date={shift}')
+            res_exchange_list.append(response)
+        result_r = normalize_response(res_exchange_list)
+        return result_r
     except HttpError as err:
         print(err)
         return None
@@ -43,5 +68,7 @@ if __name__ == '__main__':
     get_argv = int(sys.argv[1])
     if get_argv > 10:
         sys.exit(f"Days {get_argv} more then 10.")
-    r = asyncio.run(main(get_argv))
-    print(r)
+    result = asyncio.run(main(get_argv))
+    # print(r)
+    for exchange_day in result:
+        print(exchange_day)
