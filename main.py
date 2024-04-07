@@ -20,41 +20,35 @@ async def request(url: str):
             raise HttpError(f"Error status: {r.status_code} for {url}")
 
 
-def normalize_response(response):
-    result_list = list()
-    # print(type(response))
-    # for key, value in response.items():
-    #     # print(key, value)
-    #     current_date = key['date']
-    # print(current_date)
-    
-    # return response
-    current_date = None
-    for rate in response.get('exchangeRate', []):
-        if rate.get('currency') in ['EUR', 'USD']:
-            currency = rate['currency']
-            date = response['date']
-            if date != current_date:
-                result_list.append(date)
-                current_date = date
-            result_list.append(f"\n{{'{currency}': {{\n"
-                                  f"  'sale': {rate.get('saleRateNB', 0)},\n"
-                                  f"  'purchase': {rate.get('purchaseRateNB', 0)}\n}}}}")
+# def normalize_response(response):
+#     result_list = list()
 
-    return result_list
+#     current_date = None
+#     for rate in response.get('exchangeRate', []):
+#         if rate.get('currency') in ['EUR', 'USD']:
+#             currency = rate['currency']
+#             date = response['date']
+#             if date != current_date:
+#                 result_list.append(date)
+#                 current_date = date
+#             result_list.append(f"\n{{'{currency}': {{\n"
+#                                   f"  'sale': {rate.get('saleRateNB', 0)},\n"
+#                                   f"  'purchase': {rate.get('purchaseRateNB', 0)}\n}}}}")
+
+#     return result_list
 
 
 async def main(index_day):
     res_exchange_list = list()
-    d = datetime.now() - timedelta(days=index_day)
-    shift = d.strftime("%d.%m.%Y")
     
     try:
-        for index in range(index_day + 1):  # AAAAAAAAAAAAAAAAAAAAAAAAA
+        for index in range(1, index_day + 1):  # AAAAAAAAAAAAAAAAAAAAAAAAA
+            d = datetime.now() - timedelta(days=index - 1)
+            shift = d.strftime("%d.%m.%Y")
             response = await request(f'https://api.privatbank.ua/p24api/exchange_rates?date={shift}')
             res_exchange_list.append(response)
-        result_r = normalize_response(res_exchange_list)
-        return result_r
+        # result_r = normalize_response(res_exchange_list)
+        return res_exchange_list
     except HttpError as err:
         print(err)
         return None
