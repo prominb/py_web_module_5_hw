@@ -37,6 +37,6 @@ async def main(index_day):
 if __name__ == '__main__':
     if platform.system() == 'Windows':
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-    # print(sys.argv)
+    print(sys.argv)
     r = asyncio.run(main(sys.argv[1]))
     print(r)
