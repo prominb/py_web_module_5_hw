@@ -34,43 +34,37 @@ async def request(url: str):
 #     return result_list
 
 def get_date(input_day):
-    # input_day = 3
     result_list = [(datetime.now() - timedelta(days=index-1)) for index in range(1, input_day + 1)]
-    # print(result)
     for index in range(len(result_list)):
-        # print(mymy.strftime("%d.%m.%Y"))
         result_list[index] = result_list[index].strftime("%d.%m.%Y")
-    # print(result_list)
     return result_list
 
+# async def get_date_async(input_day):
+    # r = []
+    # for i in range(input_day + 1):
+    #     r.append(get_user_async(i))
+    # return await asyncio.gather(*r)
+    # cur_date, = list(lambda cur_date: cur_date, d_list)
+    # return cur_date
 
 async def main(index_day):
     res_exchange_list = list()
-    # dates_list = list()
-    # d = datetime.now() - timedelta(days=int(index_day))
-    # shift = d.strftime("%d.%m.%Y")
-    # for index in range(1, index_day + 1):
-    #     d = datetime.now() - timedelta(days=int(index - 1))
-    #     dates_list.append(d.strftime("%d.%m.%Y"))
-    # return dates_list
-    # await get_date_async(index_day)
-    # print(get_date)
     dates_list = get_date(index_day)
+    # print(dates_list)
     try:
-        # current_date = await get_date(index_day)
-        for cur_date in dates_list:  # AAAAAAAAAAAAAAAAAAAAAAAAA
-            # get_date = await get_date_async(index_day)
-            # print(date)
-            # shift = get_date.strftime("%d.%m.%Y")
+        # for idx in range(index_day + 1):
+        for cur_date in dates_list:
+            # cur_date = await get_date_async(idx)
             response = await request(f'https://api.privatbank.ua/p24api/exchange_rates?date={cur_date}')
             res_exchange_list.append(response)
         # result_r = normalize_response(res_exchange_list)
-        return res_exchange_list
-        # return await asyncio.gather(*res_exchange_list)
+        # return res_exchange_list
+        return await asyncio.gather(*res_exchange_list)
         # return response
     except HttpError as err:
         print(err)
         return None
+    # return res_exchange_list
 
 
 if __name__ == '__main__':
