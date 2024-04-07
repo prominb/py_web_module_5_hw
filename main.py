@@ -20,35 +20,54 @@ async def request(url: str):
             raise HttpError(f"Error status: {r.status_code} for {url}")
 
 
+# async def get_date_async(input_day):
+#     await asyncio.sleep(0.5)
+#     # get_date, = list(filter(lambda user: user["id"] == uid, fake_users))
+#     get_date_list = [(datetime.now() - timedelta(days=index-1)) for index in range(1, input_day + 1)]
+#     get_date = [get_date.strftime("%d.%m.%Y") for get_date in get_date_list]
+#     print(get_date)
+#     # return get_date
+
+
 # def normalize_response(response):
 #     result_list = list()
-
-#     current_date = None
-#     for rate in response.get('exchangeRate', []):
-#         if rate.get('currency') in ['EUR', 'USD']:
-#             currency = rate['currency']
-#             date = response['date']
-#             if date != current_date:
-#                 result_list.append(date)
-#                 current_date = date
-#             result_list.append(f"\n{{'{currency}': {{\n"
-#                                   f"  'sale': {rate.get('saleRateNB', 0)},\n"
-#                                   f"  'purchase': {rate.get('purchaseRateNB', 0)}\n}}}}")
-
 #     return result_list
+
+def get_date(input_day):
+    # input_day = 3
+    result_list = [(datetime.now() - timedelta(days=index-1)) for index in range(1, input_day + 1)]
+    # print(result)
+    for index in range(len(result_list)):
+        # print(mymy.strftime("%d.%m.%Y"))
+        result_list[index] = result_list[index].strftime("%d.%m.%Y")
+    # print(result_list)
+    return result_list
 
 
 async def main(index_day):
     res_exchange_list = list()
-    
+    # dates_list = list()
+    # d = datetime.now() - timedelta(days=int(index_day))
+    # shift = d.strftime("%d.%m.%Y")
+    # for index in range(1, index_day + 1):
+    #     d = datetime.now() - timedelta(days=int(index - 1))
+    #     dates_list.append(d.strftime("%d.%m.%Y"))
+    # return dates_list
+    # await get_date_async(index_day)
+    # print(get_date)
+    dates_list = get_date(index_day)
     try:
-        for index in range(1, index_day + 1):  # AAAAAAAAAAAAAAAAAAAAAAAAA
-            d = datetime.now() - timedelta(days=index - 1)
-            shift = d.strftime("%d.%m.%Y")
-            response = await request(f'https://api.privatbank.ua/p24api/exchange_rates?date={shift}')
+        # current_date = await get_date(index_day)
+        for cur_date in dates_list:  # AAAAAAAAAAAAAAAAAAAAAAAAA
+            # get_date = await get_date_async(index_day)
+            # print(date)
+            # shift = get_date.strftime("%d.%m.%Y")
+            response = await request(f'https://api.privatbank.ua/p24api/exchange_rates?date={cur_date}')
             res_exchange_list.append(response)
         # result_r = normalize_response(res_exchange_list)
         return res_exchange_list
+        # return await asyncio.gather(*res_exchange_list)
+        # return response
     except HttpError as err:
         print(err)
         return None
@@ -63,6 +82,7 @@ if __name__ == '__main__':
     if get_argv > 10:
         sys.exit(f"Days {get_argv} more then 10.")
     result = asyncio.run(main(get_argv))
-    # print(r)
-    for exchange_day in result:
-        print(exchange_day)
+    print(result)
+    # for exchange_day in result:
+    #     print(exchange_day)
+    # get_date(get_argv)
